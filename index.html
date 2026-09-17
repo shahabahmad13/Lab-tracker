@@ -4,159 +4,195 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lab & Health Patient Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f6f8f7;
+    --bg:#eef4f2;
     --panel:#ffffff;
     --ink:#132a2a;
     --sub:#5b6f6d;
-    --line:#dbe4e2;
-    --accent:#0f6e5e;
+    --line:#e0e8e6;
+    --accent:#0f8a6e;
     --accent-ink:#ffffff;
-    --amber:#b5760f;
-    --danger:#a8352a;
+    --danger:#c0392b;
+    --c1:#0f8a6e; --c1-soft:#e2f5ee;
+    --c2:#1d6fa8; --c2-soft:#e3f0f9;
+    --c3:#c9820f; --c3-soft:#faf0dd;
+    --c4:#7a4fb5; --c4-soft:#f0e9fa;
+    --c5:#c0392b; --c5-soft:#fbe7e4;
+    --c6:#0e8a95; --c6-soft:#e1f3f5;
+    --disp: "Space Grotesk", "Segoe UI", sans-serif;
+    --body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   }
   :root:not([data-theme="light"]){
     @media (prefers-color-scheme: dark){
-      --bg:#0d1513;
-      --panel:#131d1b;
-      --ink:#e7f1ee;
-      --sub:#8fa6a2;
-      --line:#263634;
-      --accent:#3ecfae;
-      --accent-ink:#08201a;
-      --amber:#e0a94a;
-      --danger:#e3766a;
+      --bg:#0b1513; --panel:#122420; --ink:#eaf5f1; --sub:#8fb0a8; --line:#25403a;
+      --accent:#3fe0b8; --accent-ink:#06231b; --danger:#ef7a6c;
+      --c1:#3fe0b8; --c1-soft:#0f2b25;
+      --c2:#5aa8e8; --c2-soft:#0e2635;
+      --c3:#f0b054; --c3-soft:#2c2110;
+      --c4:#b98af0; --c4-soft:#241a34;
+      --c5:#ef7a6c; --c5-soft:#301612;
+      --c6:#4fd6e0; --c6-soft:#0c2a2c;
     }
   }
   :root[data-theme="dark"]{
-    --bg:#0d1513;
-    --panel:#131d1b;
-    --ink:#e7f1ee;
-    --sub:#8fa6a2;
-    --line:#263634;
-    --accent:#3ecfae;
-    --accent-ink:#08201a;
-    --amber:#e0a94a;
-    --danger:#e3766a;
+    --bg:#0b1513; --panel:#122420; --ink:#eaf5f1; --sub:#8fb0a8; --line:#25403a;
+    --accent:#3fe0b8; --accent-ink:#06231b; --danger:#ef7a6c;
+    --c1:#3fe0b8; --c1-soft:#0f2b25;
+    --c2:#5aa8e8; --c2-soft:#0e2635;
+    --c3:#f0b054; --c3-soft:#2c2110;
+    --c4:#b98af0; --c4-soft:#241a34;
+    --c5:#ef7a6c; --c5-soft:#301612;
+    --c6:#4fd6e0; --c6-soft:#0c2a2c;
   }
   *{box-sizing:border-box;}
   body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font-family: "Iowan Old Style", "Charter", "Georgia", serif;
-    line-height:1.5;
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--body); line-height:1.5;
   }
-  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 80px;}
-  header{margin-bottom:22px;}
-  header h1{
-    font-size:1.55rem;
-    margin:0 0 4px;
-    letter-spacing:-0.01em;
-    font-weight:600;
-  }
-  header p{margin:0;color:var(--sub);font-size:0.92rem;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+  .wrap{max-width:780px;margin:0 auto;padding:18px 14px 90px;}
 
-  .toolbar{
-    display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 22px;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  header{
+    margin-bottom:16px; padding:22px 20px 20px;
+    border-radius:20px; position:relative; overflow:hidden;
+    background:
+      radial-gradient(circle at 85% -10%, rgba(255,255,255,0.18), transparent 55%),
+      linear-gradient(125deg, var(--c1), var(--c2) 55%, var(--c6));
+    color:#ffffff;
   }
+  header::after{
+    content:"🧫  🩸  🧪  💊  📋";
+    position:absolute; right:-6px; bottom:-14px; font-size:2.4rem;
+    opacity:0.16; letter-spacing:6px; pointer-events:none;
+  }
+  .profile-row{ display:flex; align-items:center; gap:12px; margin-bottom:14px; position:relative; z-index:1;}
+  .avatar{
+    width:54px;height:54px;border-radius:50%;
+    background:rgba(255,255,255,0.22); border:2px solid rgba(255,255,255,0.65);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;color:#fff;overflow:hidden;flex-shrink:0;cursor:pointer;
+  }
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  .profile-fields{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
+  .profile-fields input{
+    background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.4);
+    color:#fff; border-radius:7px; padding:5px 10px; font-size:0.83rem; font-family:var(--body);
+  }
+  .profile-fields input::placeholder{color:rgba(255,255,255,0.75);}
+  header h1{
+    font-family:var(--disp); font-size:1.5rem; margin:0 0 4px;
+    letter-spacing:-0.01em; font-weight:700; position:relative; z-index:1;
+  }
+  header p{margin:0;color:rgba(255,255,255,0.9);font-size:0.88rem;position:relative;z-index:1;}
+
+  .steps{
+    display:flex; gap:6px; margin:14px 0 16px; overflow-x:auto; padding-bottom:2px;
+  }
+  .step-dot{
+    flex:1; min-width:38px; text-align:center; cursor:pointer; user-select:none;
+  }
+  .step-dot .circle{
+    width:32px;height:32px;border-radius:50%;margin:0 auto 4px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.95rem; font-family:var(--disp); font-weight:700;
+    border:2px solid var(--dot-c); color:var(--dot-c); background:var(--panel);
+    transition:background .15s, color .15s;
+  }
+  .step-dot.filled .circle{ background:var(--dot-c); color:#fff; }
+  .step-dot .lbl{font-size:0.62rem;color:var(--sub);white-space:nowrap;}
+
+  .toolbar{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
   .toolbar select, .toolbar button{
-    font-family:inherit;font-size:0.85rem;
-    border:1px solid var(--line);
-    background:var(--panel);
-    color:var(--ink);
-    padding:8px 12px;
-    border-radius:7px;
-    cursor:pointer;
+    font-family:var(--body); font-size:0.84rem;
+    border:1px solid var(--line); background:var(--panel); color:var(--ink);
+    padding:9px 14px; border-radius:999px; cursor:pointer;
   }
-  .toolbar button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;}
-  .toolbar button.danger{color:var(--danger);}
+  .toolbar button.primary{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:600; }
+  .toolbar button.danger{ color:var(--danger); }
 
   .card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:10px;
-    margin-bottom:14px;
-    overflow:hidden;
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    margin-bottom:14px; overflow:hidden;
+    box-shadow:0 2px 10px -6px var(--sec-c);
   }
   .card > summary{
-    list-style:none;
-    cursor:pointer;
-    padding:14px 16px;
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    font-weight:600;
-    font-size:0.95rem;
+    list-style:none; cursor:pointer; padding:14px 16px 16px;
+    display:flex; align-items:center; gap:12px; position:relative;
+    font-family:var(--disp); font-weight:600; font-size:0.96rem;
   }
   .card > summary::-webkit-details-marker{display:none;}
-  .card > summary .n{color:var(--sub);font-weight:400;font-size:0.8rem;}
+  .icon-badge{
+    width:36px;height:36px;border-radius:11px;flex-shrink:0;
+    background:var(--sec-soft); color:var(--sec-c);
+    display:flex;align-items:center;justify-content:center; font-size:1.05rem;
+  }
+  .summary-text{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;}
+  .summary-text .n{color:var(--sub);font-weight:400;font-size:0.74rem;font-family:var(--body);}
+  .pct{font-family:var(--body);font-size:0.72rem;font-weight:600;color:var(--sec-c);flex-shrink:0;}
+  .prog{position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--line);}
+  .prog-fill{height:100%;width:0%;background:var(--sec-c);transition:width .2s;}
   .card[open] > summary{border-bottom:1px solid var(--line);}
-  .body{padding:14px 16px 18px;}
+  .body{padding:16px;}
+
+  .card[data-sec="1"]{ --sec-c:var(--c1); --sec-soft:var(--c1-soft); }
+  .card[data-sec="2"]{ --sec-c:var(--c2); --sec-soft:var(--c2-soft); }
+  .card[data-sec="3"]{ --sec-c:var(--c3); --sec-soft:var(--c3-soft); }
+  .card[data-sec="4"]{ --sec-c:var(--c4); --sec-soft:var(--c4-soft); }
+  .card[data-sec="5"]{ --sec-c:var(--c5); --sec-soft:var(--c5-soft); }
+  .card[data-sec="6"]{ --sec-c:var(--c6); --sec-soft:var(--c6-soft); }
 
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
-  .grid.full, .field.span2{grid-column:1/-1;}
+  .field.span2{grid-column:1/-1;}
   .field{display:flex;flex-direction:column;gap:4px;}
-  .field label{
-    font-size:0.72rem;
-    color:var(--sub);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  }
+  .field label{ font-size:0.72rem; color:var(--sub); font-weight:500; }
   .field input, .field select, .field textarea{
-    font-family:var(--mono);
-    font-size:0.86rem;
-    padding:7px 9px;
-    border:1px solid var(--line);
-    border-radius:6px;
-    background:transparent;
-    color:var(--ink);
-    width:100%;
+    font-family:var(--mono); font-size:0.86rem; padding:8px 10px;
+    border:1px solid var(--line); border-radius:8px; background:transparent; color:var(--ink); width:100%;
   }
-  .field textarea{resize:vertical;min-height:38px;font-family:inherit;}
-  .field input:focus, .field select:focus, .field textarea:focus{
-    outline:2px solid var(--accent);outline-offset:1px;
-  }
+  .field textarea{resize:vertical;min-height:38px;font-family:var(--body);}
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:2px solid var(--sec-c, var(--accent)); outline-offset:1px; }
 
   .subhead{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    font-size:0.78rem;
-    color:var(--accent);
-    font-weight:700;
-    margin:16px 0 8px;
-    padding-top:12px;
-    border-top:1px dashed var(--line);
+    display:flex; align-items:center; gap:6px;
+    font-size:0.76rem; color:var(--sec-c); font-weight:700;
+    margin:16px 0 8px; padding-top:12px; border-top:1px dashed var(--line);
   }
   .subhead:first-child{margin-top:0;padding-top:0;border-top:none;}
+  .subhead .dot{width:6px;height:6px;border-radius:50%;background:var(--sec-c);}
 
   .out{
-    white-space:pre-wrap;
-    font-family:var(--mono);
-    font-size:0.82rem;
-    background:var(--bg);
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:14px;
-    max-height:340px;
-    overflow-y:auto;
+    white-space:pre-wrap; font-family:var(--mono); font-size:0.82rem;
+    background:var(--bg); border:1px solid var(--line); border-radius:10px;
+    padding:14px; max-height:340px; overflow-y:auto;
   }
   .foot-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-  .status{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    font-size:0.78rem;color:var(--sub);margin-top:8px;min-height:1em;
-  }
-  @media (max-width:520px){ .grid{grid-template-columns:1fr;} }
+  .status{font-size:0.78rem;color:var(--sub);margin-top:8px;min-height:1em;}
+  @media (max-width:520px){ .grid{grid-template-columns:1fr;} .steps{justify-content:flex-start;} }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Lab &amp; Health — Patient Tracker</h1>
+    <div class="profile-row">
+      <div class="avatar" id="avatarBtn" title="Tap to change photo">
+        <span id="avatarInitial">🧪</span>
+        <img id="avatarImg" style="display:none;">
+      </div>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+      <div class="profile-fields">
+        <input id="profName" placeholder="Your name">
+        <input id="profLab" placeholder="Lab / clinic name">
+      </div>
+    </div>
+    <h1 id="pageTitle">Lab &amp; Health — Patient Tracker</h1>
     <p>Fill a patient in, generate a clean summary, paste it into ChatGPT or here to discuss the case.</p>
   </header>
+
+  <div class="steps" id="stepsRow"></div>
 
   <div class="toolbar">
     <select id="patientPicker"></select>
@@ -165,8 +201,13 @@
     <button id="copyBtn" class="primary">Copy summary</button>
   </div>
 
-  <details class="card" open>
-    <summary>1 · Patient information <span class="n">ID, demographics, complaint</span></summary>
+  <details class="card" data-sec="1" open>
+    <summary>
+      <div class="icon-badge">👤</div>
+      <div class="summary-text">1 · Patient information<span class="n">ID, demographics, complaint</span></div>
+      <span class="pct" data-pct>0%</span>
+      <div class="prog"><div class="prog-fill" data-fill></div></div>
+    </summary>
     <div class="body">
       <div class="grid">
         <div class="field"><label>Patient ID</label><input data-k="pid"></div>
@@ -184,8 +225,13 @@
     </div>
   </details>
 
-  <details class="card">
-    <summary>2 · Doctor's advice <span class="n">tests, diagnosis, instructions</span></summary>
+  <details class="card" data-sec="2">
+    <summary>
+      <div class="icon-badge">🩺</div>
+      <div class="summary-text">2 · Doctor's advice<span class="n">tests, diagnosis, instructions</span></div>
+      <span class="pct" data-pct>0%</span>
+      <div class="prog"><div class="prog-fill" data-fill></div></div>
+    </summary>
     <div class="body">
       <div class="grid">
         <div class="field span2"><label>Doctor's advised tests</label><textarea data-k="advisedTests"></textarea></div>
@@ -199,10 +245,15 @@
     </div>
   </details>
 
-  <details class="card">
-    <summary>3 · Laboratory tests <span class="n">CBC, urine R/E, other</span></summary>
+  <details class="card" data-sec="3">
+    <summary>
+      <div class="icon-badge">🔬</div>
+      <div class="summary-text">3 · Laboratory tests<span class="n">CBC, urine R/E, other</span></div>
+      <span class="pct" data-pct>0%</span>
+      <div class="prog"><div class="prog-fill" data-fill></div></div>
+    </summary>
     <div class="body">
-      <div class="subhead">CBC</div>
+      <div class="subhead"><span class="dot"></span>CBC</div>
       <div class="grid">
         <div class="field"><label>WBC</label><input data-k="wbc"></div>
         <div class="field"><label>Hb</label><input data-k="hb"></div>
@@ -216,7 +267,7 @@
         <div class="field span2"><label>Differential count</label><input data-k="diffcount"></div>
       </div>
 
-      <div class="subhead">Urine R/E</div>
+      <div class="subhead"><span class="dot"></span>Urine R/E</div>
       <div class="grid">
         <div class="field"><label>Color</label><input data-k="uColor"></div>
         <div class="field"><label>Appearance</label><input data-k="uAppearance"></div>
@@ -233,7 +284,7 @@
         <div class="field span2"><label>Other findings</label><input data-k="uOther"></div>
       </div>
 
-      <div class="subhead">Other test</div>
+      <div class="subhead"><span class="dot"></span>Other test</div>
       <div class="grid">
         <div class="field"><label>Test name</label><input data-k="otName"></div>
         <div class="field"><label>Result</label><input data-k="otResult"></div>
@@ -244,8 +295,13 @@
     </div>
   </details>
 
-  <details class="card">
-    <summary>4 · Sample collection <span class="n">type, timing, condition</span></summary>
+  <details class="card" data-sec="4">
+    <summary>
+      <div class="icon-badge">🧫</div>
+      <div class="summary-text">4 · Sample collection<span class="n">type, timing, condition</span></div>
+      <span class="pct" data-pct>0%</span>
+      <div class="prog"><div class="prog-fill" data-fill></div></div>
+    </summary>
     <div class="body">
       <div class="grid">
         <div class="field"><label>Sample type</label>
@@ -261,8 +317,13 @@
     </div>
   </details>
 
-  <details class="card">
-    <summary>5 · Medicines / injections <span class="n">as prescribed only</span></summary>
+  <details class="card" data-sec="5">
+    <summary>
+      <div class="icon-badge">💉</div>
+      <div class="summary-text">5 · Medicines / injections<span class="n">as prescribed only</span></div>
+      <span class="pct" data-pct>0%</span>
+      <div class="prog"><div class="prog-fill" data-fill></div></div>
+    </summary>
     <div class="body">
       <div class="grid">
         <div class="field"><label>Drug name</label><input data-k="drugName"></div>
@@ -278,8 +339,13 @@
     </div>
   </details>
 
-  <details class="card">
-    <summary>6 · Interpretation <span class="n">abnormal findings, ddx, notification</span></summary>
+  <details class="card" data-sec="6">
+    <summary>
+      <div class="icon-badge">📊</div>
+      <div class="summary-text">6 · Interpretation<span class="n">abnormal findings, ddx, notification</span></div>
+      <span class="pct" data-pct>0%</span>
+      <div class="prog"><div class="prog-fill" data-fill></div></div>
+    </summary>
     <div class="body">
       <div class="grid">
         <div class="field span2"><label>Main abnormal findings</label><textarea data-k="abnormal"></textarea></div>
@@ -294,8 +360,11 @@
     </div>
   </details>
 
-  <details class="card" open>
-    <summary>Summary output <span class="n">copy into ChatGPT or discuss here</span></summary>
+  <details class="card" data-sec="1" open>
+    <summary>
+      <div class="icon-badge">📄</div>
+      <div class="summary-text">Summary output<span class="n">copy into ChatGPT or discuss here</span></div>
+    </summary>
     <div class="body">
       <div class="out" id="summaryOut">Fill in fields above — this updates live.</div>
       <div class="foot-actions">
@@ -312,6 +381,7 @@
   var STORE_KEY = 'lab_tracker_patients_v1';
   var patients = {};
   var currentId = null;
+  var SECTIONS = Array.from(document.querySelectorAll('.card[data-sec]')).slice(0,6);
 
   function loadAll(){
     try{
@@ -414,10 +484,41 @@
     writeForm(patients[currentId]);
     refreshPicker();
     updateSummary();
+    updateProgress();
   }
   function updateSummary(){
     var r = readForm();
     document.getElementById('summaryOut').textContent = buildSummary(r) || 'Fill in fields above — this updates live.';
+  }
+  function updateProgress(){
+    SECTIONS.forEach(function(card, idx){
+      var fields = card.querySelectorAll('[data-k]');
+      var filled = 0;
+      fields.forEach(function(f){ if(f.value && f.value.trim() !== '') filled++; });
+      var pct = fields.length ? Math.round((filled/fields.length)*100) : 0;
+      var fillEl = card.querySelector('[data-fill]');
+      var pctEl = card.querySelector('[data-pct]');
+      if(fillEl) fillEl.style.width = pct + '%';
+      if(pctEl) pctEl.textContent = pct + '%';
+      var dot = document.querySelectorAll('.step-dot')[idx];
+      if(dot){ if(filled > 0) dot.classList.add('filled'); else dot.classList.remove('filled'); }
+    });
+  }
+  function buildSteps(){
+    var row = document.getElementById('stepsRow');
+    row.innerHTML = '';
+    var colors = ['c1','c2','c3','c4','c5','c6'];
+    SECTIONS.forEach(function(card, idx){
+      var d = document.createElement('div');
+      d.className = 'step-dot';
+      d.style.setProperty('--dot-c', 'var(--' + colors[idx] + ')');
+      d.innerHTML = '<div class="circle">' + (idx+1) + '</div><div class="lbl">' + card.dataset.label + '</div>';
+      d.addEventListener('click', function(){
+        card.open = true;
+        card.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+      row.appendChild(d);
+    });
   }
   function persistCurrent(){
     if(!currentId) return;
@@ -431,14 +532,18 @@
     setTimeout(function(){ if(s.textContent === msg) s.textContent=''; }, 2200);
   }
 
+  var labels = ['Patient','Doctor','Tests','Sample','Meds','Interp'];
+  SECTIONS.forEach(function(card, idx){ card.dataset.label = labels[idx]; });
+
   FIELDS.forEach(function(el){
-    el.addEventListener('input', function(){ persistCurrent(); updateSummary(); });
+    el.addEventListener('input', function(){ persistCurrent(); updateSummary(); updateProgress(); });
   });
 
   document.getElementById('patientPicker').addEventListener('change', function(e){
     currentId = e.target.value;
     writeForm(patients[currentId]);
     updateSummary();
+    updateProgress();
   });
   document.getElementById('newBtn').addEventListener('click', function(){
     var id = 'p_' + Date.now();
@@ -468,8 +573,55 @@
   document.getElementById('copyBtn').addEventListener('click', doCopy);
   document.getElementById('copyBtn2').addEventListener('click', doCopy);
 
+  var PROFILE_KEY = 'lab_tracker_profile_v1';
+  function loadProfile(){
+    var p = {name:'', lab:'', photo:''};
+    try{
+      var raw = localStorage.getItem(PROFILE_KEY);
+      if(raw) p = Object.assign(p, JSON.parse(raw));
+    }catch(e){}
+    document.getElementById('profName').value = p.name;
+    document.getElementById('profLab').value = p.lab;
+    if(p.photo){
+      document.getElementById('avatarImg').src = p.photo;
+      document.getElementById('avatarImg').style.display = 'block';
+      document.getElementById('avatarInitial').style.display = 'none';
+    }
+    document.getElementById('pageTitle').textContent = p.lab ? (p.lab + ' — Patient Tracker') : 'Lab & Health — Patient Tracker';
+  }
+  function saveProfile(){
+    var p = {
+      name: document.getElementById('profName').value,
+      lab: document.getElementById('profLab').value,
+      photo: document.getElementById('avatarImg').src && document.getElementById('avatarImg').style.display !== 'none'
+        ? document.getElementById('avatarImg').src : ''
+    };
+    try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); }catch(e){}
+    document.getElementById('pageTitle').textContent = p.lab ? (p.lab + ' — Patient Tracker') : 'Lab & Health — Patient Tracker';
+  }
+  document.getElementById('profName').addEventListener('input', saveProfile);
+  document.getElementById('profLab').addEventListener('input', saveProfile);
+  document.getElementById('avatarBtn').addEventListener('click', function(){
+    document.getElementById('avatarInput').click();
+  });
+  document.getElementById('avatarInput').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var img = document.getElementById('avatarImg');
+      img.src = ev.target.result;
+      img.style.display = 'block';
+      document.getElementById('avatarInitial').style.display = 'none';
+      saveProfile();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  buildSteps();
   loadAll();
   render();
+  loadProfile();
 })();
 </script>
 </body>
