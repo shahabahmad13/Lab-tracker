@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab & Health Patient Tracker</title>
+<style>
+  :root{
+    --bg:#f6f8f7;
+    --panel:#ffffff;
+    --ink:#132a2a;
+    --sub:#5b6f6d;
+    --line:#dbe4e2;
+    --accent:#0f6e5e;
+    --accent-ink:#ffffff;
+    --amber:#b5760f;
+    --danger:#a8352a;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --bg:#0d1513;
+      --panel:#131d1b;
+      --ink:#e7f1ee;
+      --sub:#8fa6a2;
+      --line:#263634;
+      --accent:#3ecfae;
+      --accent-ink:#08201a;
+      --amber:#e0a94a;
+      --danger:#e3766a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d1513;
+    --panel:#131d1b;
+    --ink:#e7f1ee;
+    --sub:#8fa6a2;
+    --line:#263634;
+    --accent:#3ecfae;
+    --accent-ink:#08201a;
+    --amber:#e0a94a;
+    --danger:#e3766a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family: "Iowan Old Style", "Charter", "Georgia", serif;
+    line-height:1.5;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 80px;}
+  header{margin-bottom:22px;}
+  header h1{
+    font-size:1.55rem;
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+    font-weight:600;
+  }
+  header p{margin:0;color:var(--sub);font-size:0.92rem;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+
+  .toolbar{
+    display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 22px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  .toolbar select, .toolbar button{
+    font-family:inherit;font-size:0.85rem;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--ink);
+    padding:8px 12px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .toolbar button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;}
+  .toolbar button.danger{color:var(--danger);}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  .card > summary{
+    list-style:none;
+    cursor:pointer;
+    padding:14px 16px;
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+  }
+  .card > summary::-webkit-details-marker{display:none;}
+  .card > summary .n{color:var(--sub);font-weight:400;font-size:0.8rem;}
+  .card[open] > summary{border-bottom:1px solid var(--line);}
+  .body{padding:14px 16px 18px;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;}
+  .grid.full, .field.span2{grid-column:1/-1;}
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{
+    font-size:0.72rem;
+    color:var(--sub);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  .field input, .field select, .field textarea{
+    font-family:var(--mono);
+    font-size:0.86rem;
+    padding:7px 9px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:transparent;
+    color:var(--ink);
+    width:100%;
+  }
+  .field textarea{resize:vertical;min-height:38px;font-family:inherit;}
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:2px solid var(--accent);outline-offset:1px;
+  }
+
+  .subhead{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:0.78rem;
+    color:var(--accent);
+    font-weight:700;
+    margin:16px 0 8px;
+    padding-top:12px;
+    border-top:1px dashed var(--line);
+  }
+  .subhead:first-child{margin-top:0;padding-top:0;border-top:none;}
+
+  .out{
+    white-space:pre-wrap;
+    font-family:var(--mono);
+    font-size:0.82rem;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px;
+    max-height:340px;
+    overflow-y:auto;
+  }
+  .foot-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .status{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:0.78rem;color:var(--sub);margin-top:8px;min-height:1em;
+  }
+  @media (max-width:520px){ .grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Lab &amp; Health — Patient Tracker</h1>
+    <p>Fill a patient in, generate a clean summary, paste it into ChatGPT or here to discuss the case.</p>
+  </header>
+
+  <div class="toolbar">
+    <select id="patientPicker"></select>
+    <button id="newBtn">New patient</button>
+    <button id="deleteBtn" class="danger">Delete this one</button>
+    <button id="copyBtn" class="primary">Copy summary</button>
+  </div>
+
+  <details class="card" open>
+    <summary>1 · Patient information <span class="n">ID, demographics, complaint</span></summary>
+    <div class="body">
+      <div class="grid">
+        <div class="field"><label>Patient ID</label><input data-k="pid"></div>
+        <div class="field"><label>Initials</label><input data-k="initials" placeholder="avoid full name"></div>
+        <div class="field"><label>Age</label><input data-k="age"></div>
+        <div class="field"><label>Gender</label>
+          <select data-k="gender"><option value=""></option><option>Male</option><option>Female</option></select>
+        </div>
+        <div class="field"><label>Date</label><input data-k="date" type="date"></div>
+        <div class="field"><label>Duration of symptoms</label><input data-k="duration"></div>
+        <div class="field span2"><label>Main complaint / symptoms</label><textarea data-k="complaint"></textarea></div>
+        <div class="field span2"><label>Relevant medical history</label><textarea data-k="history"></textarea></div>
+        <div class="field span2"><label>Current medications</label><textarea data-k="curmeds"></textarea></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="card">
+    <summary>2 · Doctor's advice <span class="n">tests, diagnosis, instructions</span></summary>
+    <div class="body">
+      <div class="grid">
+        <div class="field span2"><label>Doctor's advised tests</label><textarea data-k="advisedTests"></textarea></div>
+        <div class="field span2"><label>Clinical diagnosis (if documented)</label><input data-k="clinDx"></div>
+        <div class="field span2"><label>Doctor's instructions</label><textarea data-k="docInstr"></textarea></div>
+        <div class="field span2"><label>Previous test results</label><textarea data-k="prevResults"></textarea></div>
+        <div class="field"><label>Priority</label>
+          <select data-k="priority"><option value=""></option><option>Routine</option><option>Emergency</option></select>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details class="card">
+    <summary>3 · Laboratory tests <span class="n">CBC, urine R/E, other</span></summary>
+    <div class="body">
+      <div class="subhead">CBC</div>
+      <div class="grid">
+        <div class="field"><label>WBC</label><input data-k="wbc"></div>
+        <div class="field"><label>Hb</label><input data-k="hb"></div>
+        <div class="field"><label>RBC</label><input data-k="rbc"></div>
+        <div class="field"><label>HCT</label><input data-k="hct"></div>
+        <div class="field"><label>MCV</label><input data-k="mcv"></div>
+        <div class="field"><label>MCH</label><input data-k="mch"></div>
+        <div class="field"><label>MCHC</label><input data-k="mchc"></div>
+        <div class="field"><label>RDW</label><input data-k="rdw"></div>
+        <div class="field"><label>Platelets</label><input data-k="plt"></div>
+        <div class="field span2"><label>Differential count</label><input data-k="diffcount"></div>
+      </div>
+
+      <div class="subhead">Urine R/E</div>
+      <div class="grid">
+        <div class="field"><label>Color</label><input data-k="uColor"></div>
+        <div class="field"><label>Appearance</label><input data-k="uAppearance"></div>
+        <div class="field"><label>pH</label><input data-k="uPh"></div>
+        <div class="field"><label>Specific gravity</label><input data-k="uSg"></div>
+        <div class="field"><label>Protein</label><input data-k="uProtein"></div>
+        <div class="field"><label>Glucose</label><input data-k="uGlucose"></div>
+        <div class="field"><label>Pus cells</label><input data-k="uPus"></div>
+        <div class="field"><label>RBCs</label><input data-k="uRbc"></div>
+        <div class="field"><label>Epithelial cells</label><input data-k="uEpi"></div>
+        <div class="field"><label>Crystals</label><input data-k="uCrystals"></div>
+        <div class="field"><label>Casts</label><input data-k="uCasts"></div>
+        <div class="field"><label>Bacteria</label><input data-k="uBacteria"></div>
+        <div class="field span2"><label>Other findings</label><input data-k="uOther"></div>
+      </div>
+
+      <div class="subhead">Other test</div>
+      <div class="grid">
+        <div class="field"><label>Test name</label><input data-k="otName"></div>
+        <div class="field"><label>Result</label><input data-k="otResult"></div>
+        <div class="field"><label>Unit</label><input data-k="otUnit"></div>
+        <div class="field"><label>Reference range</label><input data-k="otRef"></div>
+        <div class="field span2"><label>Method / analyzer</label><input data-k="otMethod"></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="card">
+    <summary>4 · Sample collection <span class="n">type, timing, condition</span></summary>
+    <div class="body">
+      <div class="grid">
+        <div class="field"><label>Sample type</label>
+          <select data-k="sampleType"><option value=""></option><option>Blood</option><option>Urine</option><option>Serum</option><option>Plasma</option><option>Other</option></select>
+        </div>
+        <div class="field"><label>Collection time</label><input data-k="collTime"></div>
+        <div class="field"><label>Fasting / non-fasting</label><input data-k="fasting"></div>
+        <div class="field"><label>Sample condition</label>
+          <select data-k="sampleCond"><option value=""></option><option>Acceptable</option><option>Rejected</option></select>
+        </div>
+        <div class="field span2"><label>Any collection issue</label><input data-k="collIssue"></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="card">
+    <summary>5 · Medicines / injections <span class="n">as prescribed only</span></summary>
+    <div class="body">
+      <div class="grid">
+        <div class="field"><label>Drug name</label><input data-k="drugName"></div>
+        <div class="field"><label>Dose</label><input data-k="drugDose"></div>
+        <div class="field"><label>Route</label>
+          <select data-k="drugRoute"><option value=""></option><option>Oral</option><option>IV</option><option>IM</option><option>SC</option></select>
+        </div>
+        <div class="field"><label>Frequency</label><input data-k="drugFreq"></div>
+        <div class="field"><label>Duration</label><input data-k="drugDur"></div>
+        <div class="field"><label>Indication</label><input data-k="drugIndication"></div>
+        <div class="field span2"><label>Doctor's instructions</label><input data-k="drugInstr"></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="card">
+    <summary>6 · Interpretation <span class="n">abnormal findings, ddx, notification</span></summary>
+    <div class="body">
+      <div class="grid">
+        <div class="field span2"><label>Main abnormal findings</label><textarea data-k="abnormal"></textarea></div>
+        <div class="field span2"><label>Possible causes</label><textarea data-k="causes"></textarea></div>
+        <div class="field span2"><label>Differential diagnosis</label><textarea data-k="ddx"></textarea></div>
+        <div class="field span2"><label>Recommended confirmatory tests</label><input data-k="confirmTests"></div>
+        <div class="field"><label>Critical value?</label>
+          <select data-k="critical"><option value=""></option><option>Yes</option><option>No</option></select>
+        </div>
+        <div class="field"><label>Doctor notification</label><input data-k="docNotify"></div>
+      </div>
+    </div>
+  </details>
+
+  <details class="card" open>
+    <summary>Summary output <span class="n">copy into ChatGPT or discuss here</span></summary>
+    <div class="body">
+      <div class="out" id="summaryOut">Fill in fields above — this updates live.</div>
+      <div class="foot-actions">
+        <button id="copyBtn2" class="primary">Copy summary</button>
+      </div>
+      <div class="status" id="status"></div>
+    </div>
+  </details>
+</div>
+
+<script>
+(function(){
+  var FIELDS = Array.from(document.querySelectorAll('[data-k]'));
+  var STORE_KEY = 'lab_tracker_patients_v1';
+  var patients = {};
+  var currentId = null;
+
+  function loadAll(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      patients = raw ? JSON.parse(raw) : {};
+    }catch(e){ patients = {}; }
+  }
+  function saveAll(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(patients)); }catch(e){}
+  }
+  function blankRecord(){
+    var r = {};
+    FIELDS.forEach(function(el){ r[el.dataset.k] = ''; });
+    return r;
+  }
+  function readForm(){
+    var r = {};
+    FIELDS.forEach(function(el){ r[el.dataset.k] = el.value; });
+    return r;
+  }
+  function writeForm(r){
+    FIELDS.forEach(function(el){ el.value = (r && r[el.dataset.k]) || ''; });
+  }
+  function label(r){
+    var id = r.pid || '(no ID)';
+    var init = r.initials ? ' — ' + r.initials : '';
+    return id + init;
+  }
+  function refreshPicker(){
+    var sel = document.getElementById('patientPicker');
+    sel.innerHTML = '';
+    Object.keys(patients).forEach(function(id){
+      var opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = label(patients[id]);
+      sel.appendChild(opt);
+    });
+    if(currentId) sel.value = currentId;
+  }
+  function ensureCurrent(){
+    var ids = Object.keys(patients);
+    if(ids.length === 0){
+      var id = 'p_' + Date.now();
+      patients[id] = blankRecord();
+      currentId = id;
+      saveAll();
+    } else if(!currentId || !patients[currentId]){
+      currentId = ids[0];
+    }
+  }
+
+  function buildSummary(r){
+    function line(lbl, v){ return v ? (lbl + ': ' + v) : null; }
+    var out = [];
+    out.push('PATIENT LAB & CLINICAL SUMMARY');
+    out.push('');
+    out.push('1. Patient');
+    [line('ID', r.pid), line('Initials', r.initials), line('Age', r.age), line('Gender', r.gender),
+     line('Date', r.date), line('Complaint', r.complaint), line('Duration', r.duration),
+     line('History', r.history), line('Current meds', r.curmeds)].filter(Boolean).forEach(function(l){out.push('  '+l);});
+
+    var doc = [line('Advised tests', r.advisedTests), line('Clinical diagnosis', r.clinDx),
+     line('Instructions', r.docInstr), line('Previous results', r.prevResults), line('Priority', r.priority)].filter(Boolean);
+    if(doc.length){ out.push(''); out.push('2. Doctor\'s advice'); doc.forEach(function(l){out.push('  '+l);}); }
+
+    var cbc = [line('WBC', r.wbc), line('Hb', r.hb), line('RBC', r.rbc), line('HCT', r.hct), line('MCV', r.mcv),
+     line('MCH', r.mch), line('MCHC', r.mchc), line('RDW', r.rdw), line('Platelets', r.plt), line('Diff count', r.diffcount)].filter(Boolean);
+    var urine = [line('Color', r.uColor), line('Appearance', r.uAppearance), line('pH', r.uPh), line('SG', r.uSg),
+     line('Protein', r.uProtein), line('Glucose', r.uGlucose), line('Pus cells', r.uPus), line('RBCs', r.uRbc),
+     line('Epithelial cells', r.uEpi), line('Crystals', r.uCrystals), line('Casts', r.uCasts), line('Bacteria', r.uBacteria),
+     line('Other', r.uOther)].filter(Boolean);
+    var other = [line('Test', r.otName), line('Result', r.otResult), line('Unit', r.otUnit),
+     line('Ref range', r.otRef), line('Method', r.otMethod)].filter(Boolean);
+    if(cbc.length || urine.length || other.length){
+      out.push(''); out.push('3. Laboratory tests');
+      if(cbc.length){ out.push('  CBC:'); cbc.forEach(function(l){out.push('    '+l);}); }
+      if(urine.length){ out.push('  Urine R/E:'); urine.forEach(function(l){out.push('    '+l);}); }
+      if(other.length){ out.push('  Other:'); other.forEach(function(l){out.push('    '+l);}); }
+    }
+
+    var sample = [line('Sample type', r.sampleType), line('Collection time', r.collTime),
+     line('Fasting', r.fasting), line('Condition', r.sampleCond), line('Issue', r.collIssue)].filter(Boolean);
+    if(sample.length){ out.push(''); out.push('4. Sample collection'); sample.forEach(function(l){out.push('  '+l);}); }
+
+    var drug = [line('Drug', r.drugName), line('Dose', r.drugDose), line('Route', r.drugRoute),
+     line('Frequency', r.drugFreq), line('Duration', r.drugDur), line('Indication', r.drugIndication),
+     line('Instructions', r.drugInstr)].filter(Boolean);
+    if(drug.length){ out.push(''); out.push('5. Medicines / injections'); drug.forEach(function(l){out.push('  '+l);}); }
+
+    var interp = [line('Abnormal findings', r.abnormal), line('Possible causes', r.causes),
+     line('Differential diagnosis', r.ddx), line('Confirmatory tests', r.confirmTests),
+     line('Critical value', r.critical), line('Doctor notified', r.docNotify)].filter(Boolean);
+    if(interp.length){ out.push(''); out.push('6. Interpretation'); interp.forEach(function(l){out.push('  '+l);}); }
+
+    return out.join('\n');
+  }
+
+  function render(){
+    ensureCurrent();
+    writeForm(patients[currentId]);
+    refreshPicker();
+    updateSummary();
+  }
+  function updateSummary(){
+    var r = readForm();
+    document.getElementById('summaryOut').textContent = buildSummary(r) || 'Fill in fields above — this updates live.';
+  }
+  function persistCurrent(){
+    if(!currentId) return;
+    patients[currentId] = readForm();
+    saveAll();
+    refreshPicker();
+  }
+  function status(msg){
+    var s = document.getElementById('status');
+    s.textContent = msg;
+    setTimeout(function(){ if(s.textContent === msg) s.textContent=''; }, 2200);
+  }
+
+  FIELDS.forEach(function(el){
+    el.addEventListener('input', function(){ persistCurrent(); updateSummary(); });
+  });
+
+  document.getElementById('patientPicker').addEventListener('change', function(e){
+    currentId = e.target.value;
+    writeForm(patients[currentId]);
+    updateSummary();
+  });
+  document.getElementById('newBtn').addEventListener('click', function(){
+    var id = 'p_' + Date.now();
+    patients[id] = blankRecord();
+    currentId = id;
+    saveAll();
+    render();
+    status('New patient started.');
+  });
+  document.getElementById('deleteBtn').addEventListener('click', function(){
+    if(!currentId) return;
+    delete patients[currentId];
+    currentId = null;
+    saveAll();
+    render();
+    status('Deleted.');
+  });
+  function doCopy(){
+    var text = document.getElementById('summaryOut').textContent;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ status('Copied — paste into ChatGPT or here.'); })
+        .catch(function(){ status('Could not copy — select the text manually.'); });
+    } else {
+      status('Clipboard unavailable — select the text manually.');
+    }
+  }
+  document.getElementById('copyBtn').addEventListener('click', doCopy);
+  document.getElementById('copyBtn2').addEventListener('click', doCopy);
+
+  loadAll();
+  render();
+})();
+</script>
+</body>
+</html>
